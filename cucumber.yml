@@ -1,0 +1,2 @@
+default: --format pretty
+jenkins: --profile default --format json -o cucumber.json
