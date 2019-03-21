@@ -1,2 +1,5 @@
 default: --format pretty
 jenkins: --profile default --format json -o cucumber.json
+
+headless:  HEADLESS=headless
+no_headless:  HEADLESS=no_headless
