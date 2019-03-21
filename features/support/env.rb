@@ -12,33 +12,44 @@ require "pry"
 Faker::Config.locale = 'pt-BR'
 
 Capybara.app_host = 'https://automacaocombatista.herokuapp.com/'
-#Retirando esse register e o default driver eu recebo erro de "rack test requires a rack application"
 
+ENVIRONMENT_TYPE = ENV['ENVIRONMENT_TYPE']
+HEADLESS = ENV['HEADLESS']
 
-=begin 
-begin Capybara.register_driver :chrome do |app|
-    Capybara::Selenium::Driver.new(app, 
-    browser: :chrome,
+if HEADLESS.eql?('no_headless') 
+  begin Capybara.register_driver :chrome do |app|
+
+    Capybara::Selenium::Driver.new(app, browser: :chrome,
     :desired_capabilities => Selenium::WebDriver::Remote::Capabilities.chrome(
-        "chromeOptions" => {"args" => %w{ --log-level=3 --disable-web-security --no-sandbox --start-maximized --disable-print-preview --disable-dev-shm-usage}}))        
+      "chromeOptions" => {"args" => %w{ --start-maximized --log-level=3 --disable-web-security --no-sandbox --disable-print-preview --disable-dev-shm-usage}}))  
     end
-Capybara.default_driver = :chrome
-#Capybara.page.current_window.resize_to(1366,740)
-Capybara.default_max_wait_time = 25 
-end 
 
-=end
-#======Executa os testes no chrome HEADLESS MODE=========  
-
-
-begin Capybara.register_driver :selenium_chrome_headless do |app|
-  Capybara::Selenium::Driver.new(app, 
-  browser: :chrome,
-  :desired_capabilities => Selenium::WebDriver::Remote::Capabilities.chrome(
-      "chromeOptions" => {"args" => %w{ --headless --disable-gpu  --window-size=2000,4000 --log-level=3 --disable-web-security --no-sandbox --disable-print-preview --disable-dev-shm-usage}}))  
+    Capybara.configure do |config|
+      config.app_host = CONFIG['url_default']
     end
-  Capybara.default_driver = :selenium_chrome_headless
-  Capybara.default_max_wait_time = 25
+
+    Capybara.default_driver = :chrome
+    Capybara.default_max_wait_time = 30 
+  end 
+
+  #======Executa os testes no chrome HEADLESS MODE=========  
+
+elsif HEADLESS.eql?('headless')
+  begin Capybara.register_driver :selenium_chrome_headless do |app|
+    ENV['DOWNLOADPATH'] = '/var/jenkins_home/workspace/TestesAutomatizadosCPA/testes-automatizados-cpa/cucumber-capybara-cpa'
+
+    Capybara::Selenium::Driver.new(app, browser: :chrome,
+    :desired_capabilities => Selenium::WebDriver::Remote::Capabilities.chrome(
+      "chromeOptions" => {"args" => %w{ --headless --disable-gpu  --window-size=2000,2500 --log-level=3 --disable-web-security --no-sandbox --disable-print-preview --disable-dev-shm-usage}}))  
+    end
+
+    Capybara.configure do |config|
+      config.app_host = CONFIG['url_default']
+    end
+
+    Capybara.default_driver = :selenium_chrome_headless
+    Capybara.default_max_wait_time = 30
+  end
 end
 
 
